@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOVE.EXE</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+
+body{
+height:100vh;
+overflow:hidden;
+background:black;
+font-family:Arial;
+}
+
+/* CANVAS */
+canvas{
+position:absolute;
+top:0;
+left:0;
+}
+
+/* INTRO */
+#intro{
+position:absolute;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+color:white;
+z-index:50;
+text-align:center;
+}
+
+#intro h1{
+font-size:42px;
+text-shadow:0 0 25px red;
+}
+
+#intro button{
+margin-top:20px;
+padding:12px 25px;
+font-size:18px;
+border:none;
+cursor:pointer;
+background:red;
+color:white;
+border-radius:8px;
+box-shadow:0 0 25px red;
+}
+
+/* GLITCH LAYER */
+#glitch{
+position:absolute;
+width:100%;
+height:100%;
+background:black;
+z-index:20;
+opacity:0;
+pointer-events:none;
+mix-blend-mode:screen;
+}
+
+/* HEART GLOW */
+.glow{
+position:absolute;
+width:600px;
+height:600px;
+border-radius:50%;
+background:red;
+filter:blur(160px);
+opacity:.12;
+animation:beat 2s infinite;
+}
+
+@keyframes beat{
+0%,100%{transform:scale(1);opacity:.1;}
+50%{transform:scale(1.25);opacity:.25;}
+}
+
+/* MESSAGE */
+#message{
+position:absolute;
+bottom:40px;
+width:100%;
+text-align:center;
+color:white;
+font-size:28px;
+text-shadow:0 0 10px red;
+z-index:10;
+opacity:0;
+transition:2s;
+}
+
+/* END SCREEN */
+#end{
+position:absolute;
+width:100%;
+height:100%;
+background:black;
+display:flex;
+flex-direction:column;
+justify-content:center;
+align-items:center;
+color:white;
+z-index:60;
+opacity:0;
+pointer-events:none;
+transition:2s;
+}
+
+#end h1{
+font-size:36px;
+text-shadow:0 0 20px red;
+}
+
+#end p{
+margin-top:10px;
+opacity:0.7;
+}
+
+/* RAIN */
+.rain{
+position:absolute;
+width:2px;
+height:20px;
+background:rgb(255, 0, 85);
+animation:fall linear infinite;
+}
+
+@keyframes fall{
+to{transform:translateY(100vh);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="intro">
+<h1>ENTER/L0v3.ex3//</h1>
+<button onclick="start()">START</button>
+</div>
+
+<div id="glitch"></div>
+<div class="glow"></div>
+
+<canvas id="heart"></canvas>
+
+<div id="message">༉‧₊˚🕯️𝓘 𝓛𝓞𝓥𝓔 𝓨𝓞𝓤🖤❀༉‧₊˚.</div>
+
+<div id="end">
+<h1>M3M0RY C0ЯRUPT3D</h1>
+<p>I miss you...i miss us!</p>
+</div>
+
+<!-- optional whisper audio -->
+<audio id="music" loop>
+  <source src="angel.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const canvas=document.getElementById("heart");
+const ctx=canvas.getContext("2d");
+
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+
+let words=[];
+let visible=[];
+let index=0;
+let zoom=1;
+let broken=false;
+
+// HEART
+function buildHeart(){
+words=[];
+for(let t=0;t<Math.PI*2;t+=0.04){
+let x=16*Math.pow(Math.sin(t),3);
+let y=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
+
+for(let i=0;i<4;i++){
+words.push({x:x*18+(Math.random()*10), y:y*18+(Math.random()*10)});
+}
+}
+}
+buildHeart();
+
+// SPEED CONTROL (lower = faster)
+setInterval(()=>{
+if(index<words.length){
+visible.push(words[index]);
+index++;
+}
+},20);
+
+// DRAW
+function draw(){
+ctx.clearRect(0,0,innerWidth,innerHeight);
+
+
+let pulse = 1 + Math.sin(Date.now()*0.002)*0.06;
+
+visible.forEach(p=>{
+let x=innerWidth/2 + p.x*pulse*zoom;
+let y=innerHeight/2 + p.y*pulse*zoom;
+
+ctx.font="14px Arial";
+ctx.fillStyle="rgb(255,30,30)";
+ctx.shadowBlur=25;
+ctx.shadowColor="red";
+
+ctx.fillText("I love you",x,y);
+});
+
+requestAnimationFrame(draw);
+}
+draw();
+
+// GLITCH
+function glitch(intensity=1){
+const g=document.getElementById("glitch");
+g.style.opacity=0.25*intensity;
+setTimeout(()=>g.style.opacity=0,120);
+}
+
+// RAIN
+function rain(){
+let d=document.createElement("div");
+d.className="rain";
+d.style.left=Math.random()*100+"vw";
+d.style.animationDuration=(1+Math.random()*2)+"s";
+document.body.appendChild(d);
+setTimeout(()=>d.remove(),3000);
+}
+setInterval(rain,35);
+
+// INTERACTION (heart reacts)
+document.addEventListener("mousemove",()=>{
+zoom += 0.0002;
+glitch(0.5);
+});
+
+// START EXPERIENCE
+function start(){
+
+document.getElementById("intro").style.opacity="0";
+setTimeout(()=>{
+document.getElementById("intro").style.display="none";
+},800);
+
+// music
+const music = document.getElementById("music");
+music.volume = 1;
+
+music.play().catch((err) => {
+  console.log("Audio blocked or failed:", err);
+});
+
+// start message
+setTimeout(()=>{
+document.getElementById("message").style.opacity=1;
+},1500);
+
+// random glitch bursts
+setInterval(()=>glitch(1),1000);
+
+// ENDING SEQUENCE
+setTimeout(()=>{
+broken=true;
+document.getElementById("message").style.opacity=0;
+
+document.getElementById("end").style.opacity=1;
+document.getElementById("end").style.pointerEvents="all";
+
+glitch(2);
+
+},10000); // ⏱️ ending time
+}
+
+window.onresize=()=>{
+canvas.width=innerWidth;
+canvas.height=innerHeight;
+};
+
+</script>
+
+</body>
+</html>

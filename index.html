@@ -83,6 +83,7 @@ animation:beat 2s infinite;
 50%{transform:scale(1.25);opacity:.25;}
 }
 
+
 /* MESSAGE */
 #message{
 position:absolute;
@@ -137,6 +138,29 @@ animation:fall linear infinite;
 to{transform:translateY(100vh);}
 }
 
+@media (max-width:768px){
+
+#intro h1{
+font-size:28px;
+}
+
+#intro button{
+padding:10px 18px;
+font-size:16px;
+}
+
+#message{
+font-size:18px;
+bottom:20px;
+}
+
+.glow{
+width:300px;
+height:300px;
+}
+
+}
+
 </style>
 </head>
 
@@ -186,7 +210,12 @@ let x=16*Math.pow(Math.sin(t),3);
 let y=-(13*Math.cos(t)-5*Math.cos(2*t)-2*Math.cos(3*t)-Math.cos(4*t));
 
 for(let i=0;i<4;i++){
-words.push({x:x*18+(Math.random()*10), y:y*18+(Math.random()*10)});
+const scale = Math.min(window.innerWidth, window.innerHeight) / 35;
+
+words.push({
+x: x * scale,
+y: y * scale
+});
 }
 }
 }
@@ -242,10 +271,16 @@ setTimeout(()=>d.remove(),3000);
 setInterval(rain,35);
 
 // INTERACTION (heart reacts)
-document.addEventListener("mousemove",()=>{
+function interact(){
 zoom += 0.0002;
 glitch(0.5);
-});
+}
+
+document.addEventListener("mousemove",interact);
+
+document.addEventListener("touchstart",interact);
+
+document.addEventListener("touchmove",interact);
 
 // START EXPERIENCE
 function start(){
@@ -284,10 +319,21 @@ glitch(2);
 },10000); // ⏱️ ending time
 }
 
-window.onresize=()=>{
-canvas.width=innerWidth;
-canvas.height=innerHeight;
-};
+function resizeScene(){
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+buildHeart();
+
+}
+
+window.addEventListener(
+"resize",
+resizeScene
+);
+
+resizeScene();  
 
 </script>
 
